@@ -58,9 +58,14 @@ def Agent:
 		while isHit(target) != True:
 
 			target = randomShot()
-			oldCoords.push(target)
+
+			if target not in oldCoords:
+				oldCoords.push(target)
+
 
 		#Next we would check the nearby coordinates after we land a hit
+
+
 
 	#the best algorithim of the three, using Q-learning and prob reasoning
 	def ProbReasoning(self):
@@ -73,6 +78,32 @@ def Agent:
 	#Q-learning functions
 	def computeActionsFromQValues(self):
 	def getQValue(self):
+
+	def update_qvalue(self,position, isHit,distance,counter):
+
+		#Code based on code from the Berkley Pacman projects
+        """
+          The parent class calls this to observe a
+          state = action => nextState and reward transition.
+          You should do your Q-Value update here
+          NOTE: You should never call this function,
+          it will be called on your behalf
+        """
+        if counter == 0:
+            reward = 0
+
+        elif isHit:
+                reward=0.5
+        else:
+                reward=0.1
+        
+        #Function for Q value iteration    
+        #sample = reward + self.discount * max(self.getQValue() 
+        if isHit:
+            self.qValuesOfhit[distance] = (1-self.alpha) * self.getQValue(distance,isHit) + self.alpha * sample
+        else:
+            self.qValuesOfMiss[distance] = (1-self.alpha) * self.getQValue(distance,isHit) + self.alpha * sample
+
 	def getAction(self):
 
 

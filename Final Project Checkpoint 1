@@ -1,0 +1,12 @@
+Final Project Checkpoint 1
+Jeremy Daigneau and Molly McGuire
+
+Files Submitted:
+
+battleship.py - This file contains the code and logic for playing the battleship game. It was found here http://code.activestate.com/recipes/578836-the-game-of-battleships-in-python/
+
+util.py - This code contained useful python data structures and functions. It is from the Berkley Pacman assignments.
+
+Agent.py - This is where the logic for the battleship agent is. Currently, it is not complete but will contain the functions that power the AI. Molly and Jeremy both worked on this file.
+
+schedule.txt - Updated schedule for the remainder of the project. Primarily written by Molly with insight from Jeremy.
