@@ -35,6 +35,10 @@ def Agent:
 		return true
 
 	#random shot function. Used for first and second strategy.
+
+	def shoot(self, xcoord, ycoord):
+		#this would integrate with the actual game to take the shot
+		#return true if hit was made
 	def randomShot(self):
 
 		#this is the general idea. Integration with the actual battleship game will let us test
@@ -55,15 +59,71 @@ def Agent:
 		target = randomShot()
 		oldCoords.push(target)
 
-		while isHit(target) != True:
+		while shoot(target) != True and target not in oldCoords:
 
 			target = randomShot()
 
 			if target not in oldCoords:
 				oldCoords.push(target)
 
-
 		#Next we would check the nearby coordinates after we land a hit
+		currentTarget = target
+
+		while shoot(target) == True:
+			
+			temp = target
+
+			target.ycoord = target.ycoord + 1
+			
+			if target not in oldCoords:
+				oldCoords.push(target)
+
+			else:
+				target = temp
+
+		target = currentTarget	
+
+		while shoot(target) == True:
+
+			temp = target
+
+			target.ycoord = target.ycoord - 1
+
+			if target not in oldCoords:
+				oldCoords.push(target)
+
+			else:
+				target = temp
+
+		target = currentTarget	
+
+
+		while shoot(target) == True:
+
+			temp = target
+
+			target.xcoord = target.xcoord + 1
+
+			if target not in oldCoords:
+				oldCoords.push(target)
+
+			else:
+				target = temp
+
+		target = currentTarget	
+
+		while shoot(target) == True:
+
+			temp = target 
+
+			target.xcoord = target.xcoord - 1
+			
+			if target not in oldCoords:
+				oldCoords.push(target)
+
+			else:
+				target = temp
+
 
 
 
@@ -76,7 +136,11 @@ def Agent:
 	def updateBoard(self):
 
 	#Q-learning functions
+
+	#computes the best action based on the state and current qValue
 	def computeActionsFromQValues(self):
+
+
 	def getQValue(self):
 
 	def update_qvalue(self,position, isHit,distance,counter):
