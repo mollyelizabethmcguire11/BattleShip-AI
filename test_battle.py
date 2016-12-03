@@ -36,18 +36,18 @@ def print_board(s,board):
 			elif s == "u":
 				print board[i][j],
 			elif s == "c":
-				if board[i][j] == "*" or board[i][j] == "$":
+				if board[i][j] == ('\x1b[0;31;40m' + "*" + '\x1b[0m') or board[i][j] == ('\x1b[0;32;40m' + 'X' + '\x1b[0m'):
 					print board[i][j],
 				else:
 					print " ",
 			
 			if j != 9:
-				print " | ",
+				print ('\x1b[1;37;44m' + " | " + '\x1b[0m'),
 		print
 		
 		#print a horizontal line
 		if i != 9:
-			print "   ----------------------------------------------------------"
+			print ('\x1b[1;37;44m' + "   ----------------------------------------------------------" + '\x1b[0m')
 		else: 
 			print 
 
@@ -123,7 +123,7 @@ def make_move(board,x,y):
 	#make a move on the board and return the result, hit, miss or try again for repeat hit
 	if board[x][y] == -1:
 		return "miss"
-	elif board[x][y] == '*' or board[x][y] == '$':
+	elif board[x][y] == ('\x1b[0;31;40m' + "*" + '\x1b[0m') or board[x][y] == ('\x1b[0;32;40m' + 'X' + '\x1b[0m'):
 		return "try again"
 	else:
 		return "hit"
@@ -140,12 +140,12 @@ def computer_move(board):
 		if res == "hit":
 			print "Hit at " + str(x+1) + "," + str(y+1)
 			check_sink(board,x,y)
-			board[x][y] = '$'
+			board[x][y] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
 			if check_win(board):
 				return "WIN"
 		elif res == "miss":
 			print "Sorry, " + str(x+1) + "," + str(y+1) + " is a miss."
-			board[x][y] = "*"
+			board[x][y] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
 
 		if res != "try again":
 			
@@ -177,7 +177,7 @@ def check_win(board):
 	#if any cell contains a char that is not a hit or a miss return false
 	for i in range(10):
 		for j in range(10):
-			if board[i][j] != -1 and board[i][j] != '*' and board[i][j] != '$':
+			if board[i][j] != -1 and board[i][j] != ('\x1b[0;31;40m' + "*" + '\x1b[0m') and board[i][j] != ('\x1b[0;32;40m' + 'X' + '\x1b[0m'):
 				return False
 	return True
 
