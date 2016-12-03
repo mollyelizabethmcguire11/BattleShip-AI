@@ -3,7 +3,7 @@ Jeremy Daigneau and Molly McGuire
 
 Files Submitted:
 
-battleship.py - This file contains the code and logic for playing the battleship game. It was found here http://code.activestate.com/recipes/578836-the-game-of-battleships-in-python/
+battleship.py - This file contains the code and logic for playing the battleship game. It was found here http://code.activestate.com/recipes/578836-the-game-of-battleships-in-python/. This file might be replaced by a different version of the game soon.
 
 util.py - This code contained useful python data structures and functions. It is from the Berkley Pacman assignments.
 
