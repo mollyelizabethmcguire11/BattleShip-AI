@@ -1,3 +1,6 @@
+Pseudocode
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 1) Print welcome statement 
 2) Ask for game mode
@@ -41,4 +44,19 @@
 			3.3.3.1) If a q learning guess is a miss, display grey
 			3.3.3.2) If a q learning guess is a hit, display red 
 
-			
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Developmental Ideas
+
+ * If we don't have enough time to find a way to randomize the placement of the battelships,
+ we can use a template that just places the 5 ships in the same spots every time.
+ This shouldn't effect our outcome beacuse in all game modes, the guesses until the first 
+ hit are random. Also, there is no cache of data that the AI can pull from to detect patterns
+ in games played, so it would be like running a new test every time.
+
+ * Multiple templates can be made and we can randomly choose through the list of templates, if
+ we still don't get the random ship placement done correctly.
+
+ * Each move on the board should be shown in the output for 2 seconds, and then the next board
+ or win message is displayed.
+
+
