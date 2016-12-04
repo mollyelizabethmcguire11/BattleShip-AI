@@ -1,0 +1,10 @@
+Here is a directory of all submitted files for this poject:
+
+test_battle.py - our working program
+
+pseudocode.txt - ideas and outlines on the strucuture of our project
+
+Final Project Checkpoint 1.txt - checkpoint 1
+Final Project Checkpoint 2.txt - checkpoint 2
+
+link to repository - "enter final commit here"

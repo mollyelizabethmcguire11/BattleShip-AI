@@ -178,7 +178,7 @@ def estimate_mode(board, direction):
 							board[i+1][k] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
 							return board, direction
 						elif res == "try agian" and i!= 9:
-							direction = 'down'
+							direction = 'unknown'
 							i = i + 1
 							res = make_move(board, i, k)
 							if res == "try again" and i!= 9:
@@ -202,7 +202,7 @@ def estimate_mode(board, direction):
 							board[i-1][k] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
 							return board, direction
 						elif res == "try agian" and i!= 0:
-							direction = 'up'
+							direction = 'unknown'
 							i = i - 1
 							res = make_move(board, i, k)
 							if res == "try again" and i!= 0:
@@ -226,7 +226,7 @@ def estimate_mode(board, direction):
 							board[i][k+1] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
 							return board, direction
 						elif res == "try agian" and k!= 9:
-							direction = 'right'
+							direction = 'unknown'
 							k = k + 1
 							res = make_move(board, i, k)
 							if res == "try again" and k!= 9:
@@ -250,7 +250,7 @@ def estimate_mode(board, direction):
 							board[i][k-1] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
 							return board, direction
 						elif res == "try agian" and k!= 0:
-							direction = 'left'
+							direction = 'unknown'
 							k = k - 1
 							res = make_move(board, i, k)
 							if res == "try again" and k!= 0:
