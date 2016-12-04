@@ -37,8 +37,8 @@ class Agent:
         #self.missReward = -.5
 
         #All actions taken
-        self.shotsFired = []
-        self.hits = []
+        self.shotsFired = util.Counter()
+        self.hits = util.Counter()
 
     def getRemainingActions(self, shotsFired):
 
@@ -46,7 +46,7 @@ class Agent:
 
         for i in range(WIDTH):
             for j in range(HEIGHT):
-                if shotsFired[i][j] != None:
+                if shotsFired[(i,j)] != 1:
                     remainingActions.append((i,j))
 
         return remainingActions
@@ -79,11 +79,11 @@ class Agent:
         else:
           max_action = max_actions[0]
 
-        return max_action[0][0], max_action[0][1]
+        return max_action
 
     def getQValue(self, action, shotsFired, hits):
 
-        return self.qValues[(action, hits, shotsFired)]
+        return self.qValues[(action, tuple(hits), tuple(shotsFired))]
 
     def update_qvalue(self, isHit, target, counter, shotsFired, hits):
 
@@ -98,7 +98,7 @@ class Agent:
             reward=0.1
 
         sample = reward + self.discount * max(self.getQValue(action,shotsFired, hits) for action in legalActions)
-        self.qValues[(target, hits, shotsFired)] = (1-self.alpha) * self.getQValue(target,shotsFired, hits) + self.alpha * sample
+        self.qValues[(target, tuple(hits), tuple(shotsFired))] = (1-self.alpha) * self.getQValue(target,shotsFired, hits) + self.alpha * sample
 
         #else:
          #   self.qValuesOfMiss[distance] = (1-self.alpha) * self.getQValue(distance,isHit) + self.alpha * sample
@@ -302,20 +302,20 @@ class Agent:
         counter = 0
         x = random.randint(1,10)-1
         y = random.randint(1,10)-1 
-        current_target = (x,y)
+        current_target = x,y
 
         res = self.make_move(board,x,y)
         if res == "hit":
             isHit = True
-            hits.append([x,y])
-            shotsFired.append([x,y])
+            hits[current_target]
+            shotsFired[current_target] = 1
             print "Hit at " + str(x+1) + "," + str(y+1)
             self.check_sink(board,x,y)
             board[x][y] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
             
         elif res == "miss":
             isHit = False
-            shotsFired.append([x,y])
+            shotsFired[(x,y)] = 1
             print "Sorry, " + str(x+1) + "," + str(y+1) + " is a miss."
             board[x][y] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
 
@@ -323,13 +323,13 @@ class Agent:
 
         while(True):
             x, y = self.computeActionsFromQValues(shotsFired, hits)
-            current_target = (x,y)
+            current_target = x,y
 
             res = self.make_move(board,x,y)
             if res == "hit":
                 isHit = True
-                hits.append([x,y])
-                shotsFired.append([x,y])
+                hits[current_target]
+                shotsFired[current_target] = 1
                 print "Hit at " + str(x+1) + "," + str(y+1)
                 self.check_sink(board,x,y)
                 board[x][y] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
@@ -338,15 +338,16 @@ class Agent:
 
             elif res == "miss":
                 isHit = False
-                shotsFired.append([x,y])
+                shotsFired[current_target] = 1
                 print "Sorry, " + str(x+1) + "," + str(y+1) + " is a miss."
                 board[x][y] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
 
             if res != "try again":
                 return board
 
+            counter += 1
             self.update_qvalue(isHit, current_target, counter, shotsFired, hits)
-            
+
     def check_sink(self,board,x,y):
 
         #figure out what ship was hit
@@ -448,14 +449,15 @@ def main():
             raw_input("To end computer turn hit ENTER")
 
     if game_mode == 'q':
-        print "mode has not been implemented"
-        user_board = qlearning_mode(user_board)
-        count = count + 1
-        #check if computer move
-        if user_board == "WIN":
-            print "GAME OVER"
-            print "Move count :",count,"."
-            quit()
+
+        while(1):
+            user_board = agent.qlearning_mode(user_board)
+            count = count + 1
+            #check if computer move
+            if user_board == "WIN":
+                print "GAME OVER"
+                print "Move count :",count,"."
+                quit()
 
 if __name__=="__main__":
     main()
