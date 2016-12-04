@@ -38,7 +38,10 @@ def Agent:
 		self.epsilon = float(epsilon)
 
 		self.qValues = util.Counter()
-		
+
+		#flag to check if last shot was a hit
+		self.isHit = False
+
 		#reward for hitting a target
 		#self.hitReward = 1
 
@@ -47,7 +50,7 @@ def Agent:
 
 		#All actions taken
 		self.shotsFired = []
-
+		self.hits = []
 	
 	def getRemainingActions(self, shotsFired):
 
@@ -60,88 +63,41 @@ def Agent:
 
 		return remainingActions
 
-	#function for hunt/target algorithm. Used for second strategy.
-	# def huntTarget(self):
+	def computeActionsFromQValues(self, shotsFired, hits):
 
-	# 	#stack of all shots fired
-	# 	oldCoords = []
+		actions = self.getRemainingActions(shotsFired)
+		actValPair = util.Counter()
+        qVals = []
+       
+        if len(actions) == 0:
+          
+          return None
 
-	# 	#Will take random shots until a hit is made
+        max_actions = []
+       
+        for action in actions:
+         
+          actValPair[action] = self.getQValue(action, shotsFired, hits)  
+          qVals.append(actValPair[action])
+        
+        max_value = max(qVals)
 
-	# 	target = randomShot()
-	# 	oldCoords.push(target)
+        for action in actions:
 
-	# 	while shoot(target) != True and target not in oldCoords:
+          if actValPair[action] == max_value:
+            max_actions.append(action)
 
-	# 		target = randomShot()
+        if len(max_actions) > 1:
+          max_action = random.choice(max_actions)
 
-	# 		if target not in oldCoords:
-	# 			oldCoords.push(target)
+        else:
+          max_action = max_actions[0]
 
-	# 	#Next we would check the nearby coordinates after we land a hit
-	# 	currentTarget = target
+        return max_action
 
-	# 	while shoot(target) == True:
-			
-	# 		temp = target
+	def getQValue(self, action, shotsFired, hits):
 
-	# 		target.ycoord = target.ycoord + 1
-			
-	# 		if target not in oldCoords:
-	# 			oldCoords.push(target)
-
-	# 		else:
-	# 			target = temp
-
-	# 	target = currentTarget	
-
-	# 	while shoot(target) == True:
-
-	# 		temp = target
-
-	# 		target.ycoord = target.ycoord - 1
-
-	# 		if target not in oldCoords:
-	# 			oldCoords.push(target)
-
-	# 		else:
-	# 			target = temp
-
-	# 	target = currentTarget	
-
-
-	# 	while shoot(target) == True:
-
-	# 		temp = target
-
-	# 		target.xcoord = target.xcoord + 1
-
-	# 		if target not in oldCoords:
-	# 			oldCoords.push(target)
-
-	# 		else:
-	# 			target = temp
-
-	# 	target = currentTarget	
-
-	# 	while shoot(target) == True:
-
-	# 		temp = target 
-
-	# 		target.xcoord = target.xcoord - 1
-			
-	# 		if target not in oldCoords:
-	# 			oldCoords.push(target)
-
-	# 		else:
-	# 			target = temp
-
-
-	#computes the best action based on the state and current qValue
-	def computeActionsFromQValues(self):
-
-
-	def getQValue(self):
+		return self.qValues[action, hits, shotsFired]
 
 	def update_qvalue(self,isHit,target,counter):
 
@@ -163,10 +119,6 @@ def Agent:
         else:
                 reward=0.1
         
-        #Function for Q value iteration    
-        #sample = reward + self.discount * max(self.getQValue() 
-        #if isHit:
-
         sample = reward + self.discount * max(self.getQValue(action,hitOrnot) for action in legalActions)
         self.qValues[target] = (1-self.alpha) * self.getQValue(target,isHit) + self.alpha * sample
 
