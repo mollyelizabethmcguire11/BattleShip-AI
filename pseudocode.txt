@@ -60,7 +60,57 @@ Developmental Ideas
  or win message is displayed.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-What we want to do:
+1) check for any hits
+	1.1) if theres a hit, look to the square to the left of it
+		1.1.1) If the left square is a hit, look to the square to the left unt a miss or empty is recognized.
+		1.1.2) if the left square is a miss, look to the square to the right. 
+			1.1.2.1) if the right square is a hit, look to the square
+			to the right
+			1.1.2.2) if the right square is a not occupied, hit it.
+			1.1.2.3) if the right square is a miss, check_vertical()
+		1.1.3) if the left square is not occupied, hit it.
 
-Take the current battlehship game, and make it just the computer.
-We can probably keep it as a user placing the ships for now....
+start at 0, 0
+		0, 1\
+find hits starting at 0, 0
+		check right for ship. 
+			if miss or x = 9, check down.
+
+				yadda yadda   
+			if hit, check right.
+				if hit, check right
+				if miss, continue search through the rest of the hits  
+				if unknown, send blast
+			if unkown, send blast
+
+
+check for hits
+if a hit is found, search for consecutive hits in the same row
+	complete 
+if consecutive horizontal hits are not found, check for consecutive vertical hits
+
+
+~~~~~~~~~~
+function pseudocode
+def estimate_mode(board):
+
+#reminder, this function is called every move, so it cannot independently hold data
+
+generate random x integer
+generate random y integer
+make move(randx, randy)
+if spot is not occupied, 
+	return hit
+	store location in set
+#make move check to make sure no repeats 
+is this a hit?
+	display hit
+	did we sink a ship?
+	did we win?
+is this a miss?
+	display miss
+if res is not already occupied, 
+	RETURN 	BOARD 	
+
+
+
