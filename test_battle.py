@@ -40,6 +40,8 @@ def print_board(s,board):
 					print board[i][j],
 				else:
 					print " ",
+			else:
+				print ' ',
 			
 			if j != 9:
 				print ('\x1b[1;37;44m' + " | " + '\x1b[0m'),
@@ -152,9 +154,52 @@ def random_mode(board):
 			return board
 
 def estimate_mode(board):
+	#generate user coordinates from the user and try to make move
+	#if move is a hit, check ship sunk and win condition
+	while(True):
+		for k in range(10):
+			for i in range(10):
+				if board[i][k] == ('\x1b[0;32;40m' + 'X' + '\x1b[0m') and i != 9:
+					res = make_move(board, i+1, k)
+					if res == "hit":
+						print "Hit at " + str(i+2) + "," + str(k+1)
+						check_sink(board,i+1,k)
+						board[i+1][k] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
+						if check_win(board):
+							return "WIN"
+						return board
+					if res == "miss":
+						print "Sorry, " + str(i+2) + "," + str(k+1) + " is a miss."
+						board[i+1][k] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
+						return board
+					elif res == "try agian" and i!= 9:
+						i = i + 1
+						res = make_move(board, i, k)
+						if res == "try again" and i!= 9:
+							i = i + 1
+							res = make_move(board, i, k)
+
+		x = random.randint(1,10)-1
+		y = random.randint(1,10)-1
+		res = make_move(board,x,y)
+		if res == "hit":
+			print "Hit at " + str(x+1) + "," + str(y+1)
+			check_sink(board,x,y)
+			board[x][y] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
+			if check_win(board):
+				return "WIN"
+		elif res == "miss":
+			print "Sorry, " + str(x+1) + "," + str(y+1) + " is a miss."
+			board[x][y] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
+		if res != "try again":
+			return board
+
+
+
+def qlearning_mode(board):
+	return board
 	
 def check_sink(board,x,y):
-
 	#figure out what ship was hit
 	if board[x][y] == "A":
 		ship = "Aircraft Carrier"
@@ -239,9 +284,28 @@ def main():
 			raw_input("To end computer turn hit ENTER")
 
 	if game_mode == 'e':
-		print "mode has not been implemented"
+
+		while(1):
+
+			user_board =  estimate_mode(user_board)
+			count = count + 1
+		#check if computer move
+			if user_board == "WIN":
+				print "GAME OVER"
+				print "Move count :",count,"."
+				quit()
+			print_board("u",user_board)
+			raw_input("To end computer turn hit ENTER")
+
 	if game_mode == 'q':
 		print "mode has not been implemented"
+		user_board = qlearning_mode(user_board)
+		count = count + 1
+		#check if computer move
+		if user_board == "WIN":
+			print "GAME OVER"
+			print "Move count :",count,"."
+			quit()
 	
 if __name__=="__main__":
 	main()
