@@ -79,13 +79,13 @@ class Agent:
         else:
           max_action = max_actions[0]
 
-        return max_action
+        return max_action[0][0], max_action[0][1]
 
     def getQValue(self, action, shotsFired, hits):
 
-        return self.qValues[action, hits, shotsFired]
+        return self.qValues[(action, hits, shotsFired)]
 
-    def update_qvalue(self, isHit, target, counter, shotsFired):
+    def update_qvalue(self, isHit, target, counter, shotsFired, hits):
 
         legalActions = self.getRemainingActions(shotsFired)
 
@@ -97,8 +97,8 @@ class Agent:
         else:
             reward=0.1
 
-        sample = reward + self.discount * max(self.getQValue(action,hitOrnot) for action in legalActions)
-        self.qValues[target] = (1-self.alpha) * self.getQValue(target,isHit) + self.alpha * sample
+        sample = reward + self.discount * max(self.getQValue(action,shotsFired, hits) for action in legalActions)
+        self.qValues[(target, hits, shotsFired)] = (1-self.alpha) * self.getQValue(target,shotsFired, hits) + self.alpha * sample
 
         #else:
          #   self.qValuesOfMiss[distance] = (1-self.alpha) * self.getQValue(distance,isHit) + self.alpha * sample
@@ -292,6 +292,30 @@ class Agent:
                 print "Sorry, " + str(x+1) + "," + str(y+1) + " is a miss."
                 board[x][y] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
             if res != "try again":
+                return board
+
+    def qlearning_mode(self, board):
+
+        hits = self.hits
+        shotsFired = self.shotsFired
+
+        x = random.randint(1,10)-1
+        y = random.randint(1,10)-1 
+        current_target = (x,y)
+
+        res = self.make_move(board,x,y)
+        if res == "hit":
+            hits.append([x,y])
+            shotsFired.append([x,y])
+            print "Hit at " + str(x+1) + "," + str(y+1)
+            self.check_sink(board,x,y)
+            board[x][y] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
+            # if self.check_win(board):
+            #     return "WIN"
+        elif res == "miss":
+            print "Sorry, " + str(x+1) + "," + str(y+1) + " is a miss."
+            board[x][y] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
+        if res != "try again":
                 return board
 
     def check_sink(self,board,x,y):
