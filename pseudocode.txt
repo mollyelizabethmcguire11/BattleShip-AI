@@ -59,4 +59,8 @@ Developmental Ideas
  * Each move on the board should be shown in the output for 2 seconds, and then the next board
  or win message is displayed.
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+What we want to do:
 
+Take the current battlehship game, and make it just the computer.
+We can probably keep it as a user placing the ships for now....

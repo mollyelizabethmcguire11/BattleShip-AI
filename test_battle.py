@@ -36,18 +36,18 @@ def print_board(s,board):
 			elif s == "u":
 				print board[i][j],
 			elif s == "c":
-				if board[i][j] == "*" or board[i][j] == "$":
+				if board[i][j] == ('\x1b[0;31;40m' + "*" + '\x1b[0m') or board[i][j] == ('\x1b[0;32;40m' + 'X' + '\x1b[0m'):
 					print board[i][j],
 				else:
 					print " ",
 			
 			if j != 9:
-				print " | ",
+				print ('\x1b[1;37;44m' + " | " + '\x1b[0m'),
 		print
 		
 		#print a horizontal line
 		if i != 9:
-			print "   ----------------------------------------------------------"
+			print ('\x1b[1;37;44m' + "   ----------------------------------------------------------" + '\x1b[0m')
 		else: 
 			print 
 
@@ -123,13 +123,13 @@ def make_move(board,x,y):
 	#make a move on the board and return the result, hit, miss or try again for repeat hit
 	if board[x][y] == -1:
 		return "miss"
-	elif board[x][y] == '*' or board[x][y] == '$':
+	elif board[x][y] == ('\x1b[0;31;40m' + "*" + '\x1b[0m') or board[x][y] == ('\x1b[0;32;40m' + 'X' + '\x1b[0m'):
 		return "try again"
 	else:
 		return "hit"
 
 
-def computer_move(board):
+def random_mode(board):
 	
 	#generate user coordinates from the user and try to make move
 	#if move is a hit, check ship sunk and win condition
@@ -140,16 +140,18 @@ def computer_move(board):
 		if res == "hit":
 			print "Hit at " + str(x+1) + "," + str(y+1)
 			check_sink(board,x,y)
-			board[x][y] = '$'
+			board[x][y] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
 			if check_win(board):
 				return "WIN"
 		elif res == "miss":
 			print "Sorry, " + str(x+1) + "," + str(y+1) + " is a miss."
-			board[x][y] = "*"
+			board[x][y] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
 
 		if res != "try again":
 			
 			return board
+
+def estimate_mode(board):
 	
 def check_sink(board,x,y):
 
@@ -177,7 +179,7 @@ def check_win(board):
 	#if any cell contains a char that is not a hit or a miss return false
 	for i in range(10):
 		for j in range(10):
-			if board[i][j] != -1 and board[i][j] != '*' and board[i][j] != '$':
+			if board[i][j] != -1 and board[i][j] != ('\x1b[0;31;40m' + "*" + '\x1b[0m') and board[i][j] != ('\x1b[0;32;40m' + 'X' + '\x1b[0m'):
 				return False
 	return True
 
@@ -208,20 +210,38 @@ def main():
 	user_board = computer_place_ships(user_board,ships)
 	count = 0
 	#game main loop
-	while(1):
+	print "Welcome to battleship, which game mode do you want to simulate?"
+	print "\n"
+	test_bool = True
+	while (test_bool):
+		game_mode = raw_input("\tRandom (r)\n\tEstimated Guess (e)\n\tQ Learning (q)\n")
+		if game_mode == "r" or game_mode == "e" or game_mode == "q":
+			test_bool = False
+		else:
+			print "Invalid input. Please only enter r, e, or q"
+			test_bool = True
+
+	if game_mode == 'r':
+
+		while(1):
 
 		#computer move
-		user_board = computer_move(user_board)
-		count = count + 1
+			user_board = random_mode(user_board)
+			count = count + 1
 		#check if computer move
-		if user_board == "WIN":
-			print "GAME OVER"
-			print "Move count :",count,"."
-			quit()
+			if user_board == "WIN":
+				print "GAME OVER"
+				print "Move count :",count,"."
+				quit()
 			
 		#display user board
-		print_board("u",user_board)
-		raw_input("To end computer turn hit ENTER")
+			print_board("u",user_board)
+			raw_input("To end computer turn hit ENTER")
+
+	if game_mode == 'e':
+		print "mode has not been implemented"
+	if game_mode == 'q':
+		print "mode has not been implemented"
 	
 if __name__=="__main__":
 	main()
