@@ -298,26 +298,55 @@ class Agent:
 
         hits = self.hits
         shotsFired = self.shotsFired
-
+        isHit = False
+        counter = 0
         x = random.randint(1,10)-1
         y = random.randint(1,10)-1 
         current_target = (x,y)
 
         res = self.make_move(board,x,y)
         if res == "hit":
+            isHit = True
             hits.append([x,y])
             shotsFired.append([x,y])
             print "Hit at " + str(x+1) + "," + str(y+1)
             self.check_sink(board,x,y)
             board[x][y] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
-            # if self.check_win(board):
-            #     return "WIN"
+            
         elif res == "miss":
+            isHit = False
+            shotsFired.append([x,y])
             print "Sorry, " + str(x+1) + "," + str(y+1) + " is a miss."
             board[x][y] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
-        if res != "try again":
+
+        self.update_qvalue(isHit, current_target, counter, shotsFired, hits)
+
+        while(True):
+            x, y = self.computeActionsFromQValues(shotsFired, hits)
+            current_target = (x,y)
+
+            res = self.make_move(board,x,y)
+            if res == "hit":
+                isHit = True
+                hits.append([x,y])
+                shotsFired.append([x,y])
+                print "Hit at " + str(x+1) + "," + str(y+1)
+                self.check_sink(board,x,y)
+                board[x][y] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
+                if self.check_win(board):
+                    return "WIN"
+
+            elif res == "miss":
+                isHit = False
+                shotsFired.append([x,y])
+                print "Sorry, " + str(x+1) + "," + str(y+1) + " is a miss."
+                board[x][y] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
+
+            if res != "try again":
                 return board
 
+            self.update_qvalue(isHit, current_target, counter, shotsFired, hits)
+            
     def check_sink(self,board,x,y):
 
         #figure out what ship was hit
