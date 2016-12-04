@@ -23,7 +23,7 @@ SUBMARINE = 3
 CRUISER = 3
 DESTROYER = 2
 
-def Agent:
+class Agent:
 
 	#initialize agent. Arguments to be determined...
 	def __init__(self, alpha=0.3, gamma=0.9, epsilon=0.2):
@@ -70,7 +70,7 @@ def Agent:
         qVals = []
        
         if len(actions) == 0:
-          
+        	  
           return None
 
         max_actions = []
@@ -102,7 +102,7 @@ def Agent:
 	def update_qvalue(self,isHit,target,counter):
 
 		#Code based on code from the Berkley Pacman projects
-        """
+    	"""
           The parent class calls this to observe a
           state = action => nextState and reward transition.
           You should do your Q-Value update here
@@ -112,12 +112,12 @@ def Agent:
         legalActions = self.getRemainingActions(self.shotsFired)
 
         if counter == 0:
-            reward = 0
+        	reward = 0
 
         elif isHit:
-                reward=0.5
+            reward=0.5
         else:
-                reward=0.1
+            reward=0.1
         
         sample = reward + self.discount * max(self.getQValue(action,hitOrnot) for action in legalActions)
         self.qValues[target] = (1-self.alpha) * self.getQValue(target,isHit) + self.alpha * sample
