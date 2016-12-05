@@ -153,32 +153,211 @@ def random_mode(board):
 			
 			return board
 
-def estimate_mode(board):
+
+def estimate_mode(board, direction):
 	#generate user coordinates from the user and try to make move
 	#if move is a hit, check ship sunk and win condition
 	while(True):
+
 		for k in range(10):
 			for i in range(10):
-				if board[i][k] == ('\x1b[0;32;40m' + 'X' + '\x1b[0m') and i != 9:
-					res = make_move(board, i+1, k)
-					if res == "hit":
-						print "Hit at " + str(i+2) + "," + str(k+1)
-						check_sink(board,i+1,k)
-						board[i+1][k] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
-						if check_win(board):
-							return "WIN"
-						return board
-					if res == "miss":
-						print "Sorry, " + str(i+2) + "," + str(k+1) + " is a miss."
-						board[i+1][k] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
-						return board
-					elif res == "try agian" and i!= 9:
-						i = i + 1
-						res = make_move(board, i, k)
-						if res == "try again" and i!= 9:
+				if direction == 'unknown':
+					if board[i][k] == ('\x1b[0;32;40m' + 'X' + '\x1b[0m') and i != 9:
+						res = make_move(board, i+1, k)
+						if res == "hit":
+							direction = 'down'
+							print "Hit at " + str(i+2) + "," + str(k+1)
+							check_sink(board,i+1,k)
+							board[i+1][k] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
+							if check_win(board):
+								return board, "WIN"
+							return board, direction
+						if res == "miss":
+							direction = 'not down'
+							print "Sorry, " + str(i+2) + "," + str(k+1) + " is a miss."
+							board[i+1][k] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
+							return board, direction
+						elif res == "try agian" and i!= 9:
+							direction = 'unknown'
 							i = i + 1
 							res = make_move(board, i, k)
+							if res == "try again" and i!= 9:
+								i = i + 1
+								res = make_move(board, i, k)
+							return board, direction	
+				if direction ==  'not down':
+					if board[i][k] == ('\x1b[0;32;40m' + 'X' + '\x1b[0m') and i != 0:
+						res = make_move(board, i - 1, k)
+						if res == "hit":
+							direction = 'up'
+							print "Hit at " + str(i) + "," + str(k+1)
+							check_sink(board,i-1,k)
+							board[i-1][k] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
+							if check_win(board):
+								return board, "WIN"
+							return board, direction
+						if res == "miss":
+							direction = 'not up'
+							print "Sorry, " + str(i) + "," + str(k+1) + " is a miss."
+							board[i-1][k] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
+							return board, direction
+						elif res == "try agian" and i!= 0:
+							direction = 'unknown'
+							i = i - 1
+							res = make_move(board, i, k)
+							if res == "try again" and i!= 0:
+								i = i - 1
+								res = make_move(board, i, k)
+							return board, direction
+				if direction == 'not up':
+					if board[i][k] == ('\x1b[0;32;40m' + 'X' + '\x1b[0m') and k != 9:
+						res = make_move(board, i, k+ 1)
+						if res == "hit":
+							direction = 'right'
+							print "Hit at " + str(i+1) + "," + str(k+2)
+							check_sink(board,i,k + 1)
+							board[i][k+1] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
+							if check_win(board):
+								return board, "WIN"
+							return board, direction
+						if res == "miss":
+							direction = 'not right'
+							print "Sorry, " + str(i+1) + "," + str(k+2) + " is a miss."
+							board[i][k+1] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
+							return board, direction
+						elif res == "try agian" and k!= 9:
+							direction = 'unknown'
+							k = k + 1
+							res = make_move(board, i, k)
+							if res == "try again" and k!= 9:
+								k= k + 1
+								res = make_move(board, i, k)
+							return board, direction
+				if direction == 'not right':
+					if board[i][k] == ('\x1b[0;32;40m' + 'X' + '\x1b[0m') and k != 0:
+						res = make_move(board, i, k - 1)
+						if res == "hit":
+							direction = 'left'
+							print "Hit at " + str(i+1) + "," + str(k)
+							check_sink(board,i,k - 1)
+							board[i][k-1] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
+							if check_win(board):
+								return board, "WIN"
+							return board, direction
+						if res == "miss":
+							direction = 'unknown'
+							print "Sorry, " + str(i+1) + "," + str(k) + " is a miss."
+							board[i][k-1] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
+							return board, direction
+						elif res == "try agian" and k!= 0:
+							direction = 'unknown'
+							k = k - 1
+							res = make_move(board, i, k)
+							if res == "try again" and k!= 0:
+								k = k - 1
+								res = make_move(board, i, k)
+							return board, direction
 
+
+				if direction == 'down':
+					if board[i][k] == ('\x1b[0;32;40m' + 'X' + '\x1b[0m') and i != 9:
+						res = make_move(board, i+1, k)
+						if res == "hit":
+							direction = 'down'
+							print "Hit at " + str(i+2) + "," + str(k+1)
+							check_sink(board,i+1,k)
+							board[i+1][k] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
+							if check_win(board):
+								return board, "WIN"
+							return board, direction
+						if res == "miss":
+							direction = 'up'
+							print "Sorry, " + str(i+2) + "," + str(k+1) + " is a miss."
+							board[i+1][k] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
+							return board, direction
+						elif res == "try agian" and i!= 9:
+							direction = 'down'
+							i = i + 1
+							res = make_move(board, i, k)
+							if res == "try again" and i!= 9:
+								i = i + 1
+								res = make_move(board, i, k)
+							return board, direction	
+				
+				if direction == 'up':
+					if board[i][k] == ('\x1b[0;32;40m' + 'X' + '\x1b[0m') and i != 0:
+						res = make_move(board, i-1, k)
+						if res == "hit":
+							direction = 'up'
+							print "Hit at " + str(i) + "," + str(k+1)
+							check_sink(board,i-1,k)
+							board[i-1][k] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
+							if check_win(board):
+								return board, "WIN"
+							return board, direction
+						if res == "miss":
+							direction = 'down'
+							print "Sorry, " + str(i) + "," + str(k+1) + " is a miss."
+							board[i-1][k] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
+							return board, direction
+						elif res == "try agian" and i!= 0:
+							direction = 'up'
+							i = i - 1
+							res = make_move(board, i, k)
+							if res == "try again" and i!= 0:
+								i = i - 1
+								res = make_move(board, i, k)
+							return board, direction	
+				if direction == 'right':
+					if board[i][k] == ('\x1b[0;32;40m' + 'X' + '\x1b[0m') and k != 9:
+						res = make_move(board, i, k+ 1)
+						if res == "hit":
+							direction = 'right'
+							print "Hit at " + str(i+1) + "," + str(k+2)
+							check_sink(board,i,k + 1)
+							board[i][k+1] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
+							if check_win(board):
+								return board, "WIN"
+							return board, direction
+						if res == "miss":
+							direction = 'left'
+							print "Sorry, " + str(i+1) + "," + str(k+2) + " is a miss."
+							board[i][k+1] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
+							return board, direction
+						elif res == "try agian" and k!= 9:
+							direction = 'right'
+							k = k + 1
+							res = make_move(board, i, k)
+							if res == "try again" and k!= 9:
+								k= k + 1
+								res = make_move(board, i, k)
+							return board, direction
+				if direction == 'left':
+					if board[i][k] == ('\x1b[0;32;40m' + 'X' + '\x1b[0m') and k != 0:
+						res = make_move(board, i, k - 1)
+						if res == "hit":
+							direction = 'left'
+							print "Hit at " + str(i+1) + "," + str(k)
+							check_sink(board,i,k - 1)
+							board[i][k-1] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
+							if check_win(board):
+								return board, "WIN"
+							return board, direction
+						if res == "miss":
+							direction = 'right'
+							print "Sorry, " + str(i+1) + "," + str(k) + " is a miss."
+							board[i][k-1] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
+							return board, direction
+						elif res == "try agian" and k!= 0:
+							direction = 'left'
+							k = k - 1
+							res = make_move(board, i, k)
+							if res == "try again" and k!= 0:
+								k = k - 1
+								res = make_move(board, i, k)
+							return board, direction
+		
+		direction = 'unknown'
 		x = random.randint(1,10)-1
 		y = random.randint(1,10)-1
 		res = make_move(board,x,y)
@@ -187,12 +366,12 @@ def estimate_mode(board):
 			check_sink(board,x,y)
 			board[x][y] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
 			if check_win(board):
-				return "WIN"
+				return board, "WIN"
 		elif res == "miss":
 			print "Sorry, " + str(x+1) + "," + str(y+1) + " is a miss."
 			board[x][y] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
 		if res != "try again":
-			return board
+			return board, direction
 
 
 
@@ -284,17 +463,19 @@ def main():
 			raw_input("To end computer turn hit ENTER")
 
 	if game_mode == 'e':
-
+		direction = 'unknown'
 		while(1):
 
-			user_board =  estimate_mode(user_board)
+
+			user_board, direction =  estimate_mode(user_board, direction)
 			count = count + 1
+			print direction
 		#check if computer move
-			if user_board == "WIN":
+			if direction == "WIN":
 				print "GAME OVER"
 				print "Move count :",count,"."
 				quit()
-			print_board("u",user_board)
+			print_board("u", user_board)
 			raw_input("To end computer turn hit ENTER")
 
 	if game_mode == 'q':
