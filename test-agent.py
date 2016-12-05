@@ -4,7 +4,7 @@ import random, util, copy
 class Agent:
 
     #initialize agent. Arguments to be determined...
-    def __init__(self, alpha=0.3, gamma=0.9):
+    def __init__(self, alpha=0.3, gamma=0.7):
 
         #learning rate
         self.alpha = float(alpha)
@@ -37,7 +37,8 @@ class Agent:
         max_actions = []
 
         for action in actions:
-            actValPair[action] = self.getQValue(action, shotsFired, hits)
+            actValPair[action] = self.getQValue(action,shotsFired, hits)
+            #print actValPair[action]
             qVals.append(actValPair[action])
 
         max_value = max(qVals)
@@ -57,7 +58,7 @@ class Agent:
 
     def getQValue(self, action, shotsFired, hits):
 
-        return self.qValues[(action, hits, shotsFired)]
+        return self.qValues[frozenset([action, hits, shotsFired])]
 
     def update_qvalue(self, isHit, target, counter, shotsFired, hits):
 
@@ -72,13 +73,14 @@ class Agent:
         else:
             reward=0.1
 
-        for action in legalActions:
-            values.append(self.getQValue(action,shotsFired, hits))
+        #for action in legalActions:
+         #   values.append(self.getQValue(action, shotsFired,hits))
 
-        print self.getQValue(target,shotsFired, hits)
-        max_value = max(values)
-        sample = reward + self.discount * 1
-        self.qValues[(target, hits, shotsFired)] = (1-self.alpha) * self.getQValue(target,shotsFired, hits) + self.alpha * sample
+        #print self.qValues
+        #max_value = max(values)
+        #print max_value
+        sample = reward + self.discount * max(self.getQValue(action,shotsFired, hits) for action in legalActions)
+        self.qValues[(target, hits, shotsFired)] = (1-self.alpha) * self.getQValue(target, hits, shotsFired) + self.alpha * sample
 
         #else:
          #   self.qValuesOfMiss[distance] = (1-self.alpha) * self.getQValue(distance,isHit) + self.alpha * sample
@@ -464,31 +466,31 @@ class Agent:
         res = self.make_move(board,x,y)
         if res == "hit":
             isHit = True
-            hits.append(current_target)
+            hits = hits.union(current_target)
             #print hits
-            shotsFired.append(current_target)
+            shotsFired = shotsFired.union(current_target)
             #print "Hit at " + str(x+1) + "," + str(y+1)
             self.check_sink(board,x,y)
             board[x][y] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
             
         elif res == "miss":
             isHit = False
-            shotsFired.append(current_target)
+            shotsFired = shotsFired.union(current_target)
             #print "Sorry, " + str(x+1) + "," + str(y+1) + " is a miss."
             board[x][y] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
 
-        self.update_qvalue(isHit, current_target, counter, tuple(shotsFired), tuple(hits))
+        self.update_qvalue(isHit, current_target, counter, shotsFired, hits)
 
         while(True):
-            x, y = self.computeActionsFromQValues(tuple(shotsFired), tuple(hits))
+            x, y = self.computeActionsFromQValues(shotsFired, hits)
             current_target = x,y
 
             res = self.make_move(board,x,y)
             if res == "hit":
                 isHit = True
-                hits.append(current_target)
+                hits = hits.union(current_target)
                 #print hits
-                shotsFired.append(current_target)
+                shotsFired = shotsFired.union(current_target)
                 #print "Hit at " + str(x+1) + "," + str(y+1)
                 self.check_sink(board,x,y)
                 board[x][y] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
@@ -497,7 +499,7 @@ class Agent:
 
             elif res == "miss":
                 isHit = False
-                shotsFired.append(current_target)
+                shotsFired = shotsFired.union(current_target)
                 #print "Sorry, " + str(x+1) + "," + str(y+1) + " is a miss."
                 board[x][y] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
 
@@ -507,7 +509,7 @@ class Agent:
                 return board
 
             counter += 1
-            self.update_qvalue(isHit, current_target, counter, tuple(shotsFired), tuple(hits))
+            self.update_qvalue(isHit, current_target, counter, shotsFired, hits)
 
     def check_sink(self,board,x,y):
 
@@ -615,9 +617,8 @@ def main():
         i = 0
 
         while(i < 2000):
-
-            shotsFired = []
-            hits = []
+            shotsFired = frozenset()
+            hits = frozenset()
             board = []
             for j in range(10):
                 board_row = []
