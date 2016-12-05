@@ -1,20 +1,10 @@
 
 import random, util, copy
 
-#Globals to be used
-HEIGHT = 10
-WIDTH = 10
-#Ships size constants
-CARRIER = 5
-BATTLESHIP = 4
-SUBMARINE = 3
-CRUISER = 3
-DESTROYER = 2
-
 class Agent:
 
     #initialize agent. Arguments to be determined...
-    def __init__(self, alpha=0.3, gamma=0.9, epsilon=0.2):
+    def __init__(self, alpha=0.3, gamma=0.9):
 
         #learning rate
         self.alpha = float(alpha)
@@ -22,31 +12,15 @@ class Agent:
         #discount factor
         self.discount = float(gamma)
 
-        #epsilon
-        self.epsilon = float(epsilon)
-
         self.qValues = util.Counter()
-
-        #flag to check if last shot was a hit
-        self.isHit = False
-
-        #reward for hitting a target
-        #self.hitReward = 1
-
-        #Penalty for missing
-        #self.missReward = -.5
-
-        #All actions taken
-        self.shotsFired = util.Counter()
-        self.hits = util.Counter()
 
     def getRemainingActions(self, shotsFired):
 
         remainingActions = []
-
-        for i in range(WIDTH):
-            for j in range(HEIGHT):
-                if shotsFired[(i,j)] != 1:
+       
+        for i in range(10):
+            for j in range(10):
+                if (i,j) not in shotsFired:
                     remainingActions.append((i,j))
 
         return remainingActions
@@ -83,12 +57,13 @@ class Agent:
 
     def getQValue(self, action, shotsFired, hits):
 
-        return self.qValues[(action, tuple(hits), tuple(shotsFired))]
+        return self.qValues[(action, hits, shotsFired)]
 
     def update_qvalue(self, isHit, target, counter, shotsFired, hits):
 
         legalActions = self.getRemainingActions(shotsFired)
-
+        values = []
+        
         if counter == 0:
             reward = 0
 
@@ -97,8 +72,13 @@ class Agent:
         else:
             reward=0.1
 
-        sample = reward + self.discount * max(self.getQValue(action,shotsFired, hits) for action in legalActions)
-        self.qValues[(target, tuple(hits), tuple(shotsFired))] = (1-self.alpha) * self.getQValue(target,shotsFired, hits) + self.alpha * sample
+        for action in legalActions:
+            values.append(self.getQValue(action,shotsFired, hits))
+
+        print self.getQValue(target,shotsFired, hits)
+        max_value = max(values)
+        sample = reward + self.discount * 1
+        self.qValues[(target, hits, shotsFired)] = (1-self.alpha) * self.getQValue(target,shotsFired, hits) + self.alpha * sample
 
         #else:
          #   self.qValuesOfMiss[distance] = (1-self.alpha) * self.getQValue(distance,isHit) + self.alpha * sample
@@ -294,10 +274,9 @@ class Agent:
             if res != "try again":
                 return board
 
-    def qlearning_mode(self, board):
+    def qlearning_mode(self, board, shotsFired, hits):
 
-        hits = self.hits
-        shotsFired = self.shotsFired
+        
         isHit = False
         counter = 0
         x = random.randint(1,10)-1
@@ -307,30 +286,32 @@ class Agent:
         res = self.make_move(board,x,y)
         if res == "hit":
             isHit = True
-            hits[current_target]
-            shotsFired[current_target] = 1
-            print "Hit at " + str(x+1) + "," + str(y+1)
+            hits.append(current_target)
+            #print hits
+            shotsFired.append(current_target)
+            #print "Hit at " + str(x+1) + "," + str(y+1)
             self.check_sink(board,x,y)
             board[x][y] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
             
         elif res == "miss":
             isHit = False
-            shotsFired[(x,y)] = 1
-            print "Sorry, " + str(x+1) + "," + str(y+1) + " is a miss."
+            shotsFired.append(current_target)
+            #print "Sorry, " + str(x+1) + "," + str(y+1) + " is a miss."
             board[x][y] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
 
-        self.update_qvalue(isHit, current_target, counter, shotsFired, hits)
+        self.update_qvalue(isHit, current_target, counter, tuple(shotsFired), tuple(hits))
 
         while(True):
-            x, y = self.computeActionsFromQValues(shotsFired, hits)
+            x, y = self.computeActionsFromQValues(tuple(shotsFired), tuple(hits))
             current_target = x,y
 
             res = self.make_move(board,x,y)
             if res == "hit":
                 isHit = True
-                hits[current_target]
-                shotsFired[current_target] = 1
-                print "Hit at " + str(x+1) + "," + str(y+1)
+                hits.append(current_target)
+                #print hits
+                shotsFired.append(current_target)
+                #print "Hit at " + str(x+1) + "," + str(y+1)
                 self.check_sink(board,x,y)
                 board[x][y] = ('\x1b[0;32;40m' + 'X' + '\x1b[0m')
                 if self.check_win(board):
@@ -338,15 +319,17 @@ class Agent:
 
             elif res == "miss":
                 isHit = False
-                shotsFired[current_target] = 1
-                print "Sorry, " + str(x+1) + "," + str(y+1) + " is a miss."
+                shotsFired.append(current_target)
+                #print "Sorry, " + str(x+1) + "," + str(y+1) + " is a miss."
                 board[x][y] = ('\x1b[0;31;40m' + "*" + '\x1b[0m')
 
             if res != "try again":
+                #self.hits = hits
+                #self.shotsFired = shotsFired
                 return board
 
             counter += 1
-            self.update_qvalue(isHit, current_target, counter, shotsFired, hits)
+            self.update_qvalue(isHit, current_target, counter, tuple(shotsFired), tuple(hits))
 
     def check_sink(self,board,x,y):
 
@@ -449,15 +432,39 @@ def main():
             raw_input("To end computer turn hit ENTER")
 
     if game_mode == 'q':
+        i = 0
 
-        while(1):
-            user_board = agent.qlearning_mode(user_board)
-            count = count + 1
-            #check if computer move
-            if user_board == "WIN":
-                print "GAME OVER"
-                print "Move count :",count,"."
-                quit()
+        while(i < 2000):
+
+            shotsFired = []
+            hits = []
+            board = []
+            for j in range(10):
+                board_row = []
+                for k in range(10):
+                    board_row.append(-1)
+                board.append(board_row)
+
+            #setup board
+            user_board = copy.deepcopy(board)
+
+            #add ships as last element in the array
+            user_board.append(copy.deepcopy(ships))
+
+            #ship placement
+            user_board = agent.computer_place_ships(user_board,ships)
+            count = 0
+            i += 1 
+            print "Iteration: ", i,"."     
+            while(1):
+               
+                user_board = agent.qlearning_mode(user_board, shotsFired, hits)
+                count = count + 1
+                #check if computer move
+                if user_board == "WIN":
+                    #print "GAME OVER"
+                    print "Move count :",count,"."
+                    break
 
 if __name__=="__main__":
     main()
